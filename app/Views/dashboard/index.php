@@ -79,9 +79,14 @@
                 <i class="fa-solid fa-list-ol text-primary"></i>
                 <h3 class="text-sm font-semibold text-slate-700">Antrean Aktif Hari Ini</h3>
             </div>
-            <span class="text-xs bg-primary/10 text-primary font-semibold px-2.5 py-1 rounded-full">
-                <?= count($activeQueue) ?> pasien
-            </span>
+            <div class="flex items-center gap-2">
+                <span class="text-xs bg-primary/10 text-primary font-semibold px-2.5 py-1 rounded-full">
+                    <?= count($activeQueue) ?> pasien
+                </span>
+                <a href="<?= base_url('registrations') ?>" class="text-xs font-semibold text-primary hover:text-primaryHover ml-1">
+                    Lihat Semua &rarr;
+                </a>
+            </div>
         </div>
 
         <?php if (empty($activeQueue)): ?>
@@ -99,6 +104,7 @@
                         <th class="px-5 py-3 text-left">Poliklinik</th>
                         <th class="px-5 py-3 text-left">Dokter</th>
                         <th class="px-5 py-3 text-center">Status</th>
+                        <th class="px-5 py-3 text-center w-24">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -125,6 +131,11 @@
                                 <i class="fa-solid fa-stethoscope text-[8px]"></i> Diperiksa
                             </span>
                             <?php endif; ?>
+                        </td>
+                        <td class="px-5 py-3.5 text-center">
+                            <a href="<?= base_url('examinations') ?>" class="inline-flex items-center gap-1 px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 rounded-lg text-xs font-semibold transition" title="Periksa Pasien">
+                                <i class="fa-solid fa-heart-pulse text-[10px]"></i> Periksa
+                            </a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

@@ -51,7 +51,7 @@
         <aside id="sidebar" class="w-64 flex-shrink-0 bg-sidebarBg flex flex-col transition-all duration-300 z-40">
 
             <!-- Brand -->
-            <div class="flex items-center gap-3 px-6 py-5 border-b border-white/5">
+            <a href="<?= base_url('dashboard') ?>" class="flex items-center gap-3 px-6 py-5 border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                 <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg">
                     <i class="fa-solid fa-hospital-user text-white text-sm"></i>
                 </div>
@@ -59,56 +59,54 @@
                     <p class="text-white font-bold text-sm leading-tight tracking-wide">TechnoMedic</p>
                     <p class="text-white/40 text-[10px] font-medium uppercase tracking-widest">SIMRS Rawat Jalan</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Nav -->
             <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
 
-                <p class="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/30">Menu Utama</p>
-
                 <a href="<?= base_url('dashboard') ?>"
-                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= (current_url() === base_url('dashboard')) ? 'bg-sidebarActive !text-white' : '' ?>">
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= url_is('dashboard*') ? 'bg-sidebarActive !text-white' : '' ?>">
                     <i class="fa-solid fa-gauge-high w-5 text-center text-primary"></i>
                     <span>Dashboard</span>
                 </a>
 
-                <p class="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/30">Manajemen</p>
+                <p class="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/30">Pelayanan</p>
 
-                <a href="#"
-                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors">
+                <a href="<?= base_url('patients') ?>"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= url_is('patients*') ? 'bg-sidebarActive !text-white' : '' ?>">
                     <i class="fa-solid fa-users w-5 text-center text-primary"></i>
                     <span>Data Pasien</span>
                 </a>
 
-                <a href="#"
-                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors">
+                <a href="<?= base_url('registrations') ?>"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= url_is('registrations*') ? 'bg-sidebarActive !text-white' : '' ?>">
                     <i class="fa-solid fa-clipboard-list w-5 text-center text-primary"></i>
                     <span>Pendaftaran</span>
                 </a>
 
-                <a href="#"
-                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors">
+                <a href="<?= base_url('examinations') ?>"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= url_is('examinations*') ? 'bg-sidebarActive !text-white' : '' ?>">
                     <i class="fa-solid fa-stethoscope w-5 text-center text-primary"></i>
                     <span>Pemeriksaan</span>
                 </a>
 
                 <?php if (session('role_name') === 'admin'): ?>
-                <p class="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/30">Administrasi</p>
+                <p class="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-white/30">Manajemen</p>
 
-                <a href="#"
-                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors">
+                <a href="<?= base_url('users') ?>"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= url_is('users*') ? 'bg-sidebarActive !text-white' : '' ?>">
                     <i class="fa-solid fa-user-gear w-5 text-center text-primary"></i>
                     <span>Pengguna</span>
                 </a>
 
-                <a href="#"
-                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors">
+                <a href="<?= base_url('polyclinics') ?>"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= url_is('polyclinics*') ? 'bg-sidebarActive !text-white' : '' ?>">
                     <i class="fa-solid fa-building-columns w-5 text-center text-primary"></i>
                     <span>Poliklinik</span>
                 </a>
 
-                <a href="#"
-                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors">
+                <a href="<?= base_url('doctors') ?>"
+                   class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-sidebarActive hover:text-white transition-colors <?= url_is('doctors*') ? 'bg-sidebarActive !text-white' : '' ?>">
                     <i class="fa-solid fa-user-doctor w-5 text-center text-primary"></i>
                     <span>Dokter</span>
                 </a>
