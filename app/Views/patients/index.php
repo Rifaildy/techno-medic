@@ -136,7 +136,7 @@
                         <th class="py-3.5 px-4">No. Telepon</th>
                         <th class="py-3.5 px-4">Penjamin</th>
                         <th class="py-3.5 px-4 text-center">Status</th>
-                        <th class="py-3.5 px-4 text-center w-36">Aksi</th>
+                        <th class="py-3.5 px-4 text-center w-44">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="patients-tbody" class="divide-y divide-slate-100 text-slate-700">
@@ -474,8 +474,20 @@
                                 </button>
                             ` : `
                                 <button type="button" onclick="deactivatePatient(${p.id}, '${escapeHtml(p.name)}', '${escapeHtml(p.no_rm)}')" title="Nonaktifkan Pasien"
-                                        class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center text-xs transition">
+                                        class="w-7 h-7 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 flex items-center justify-center text-xs transition">
                                     <i class="fa-solid fa-user-slash"></i>
+                                </button>
+                            `}
+
+                            ${p.has_examination ? `
+                                <button type="button" onclick="showCannotDeleteAlert('${escapeHtml(p.name)}', '${escapeHtml(p.no_rm)}')" title="Tidak dapat dihapus (sudah pernah menjalani pemeriksaan)"
+                                        class="w-7 h-7 rounded-lg bg-slate-50 text-slate-300 border border-slate-200 cursor-not-allowed flex items-center justify-center text-xs transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            ` : `
+                                <button type="button" onclick="deletePatientPermanent(${p.id}, '${escapeHtml(p.name)}', '${escapeHtml(p.no_rm)}')" title="Hapus Permanen Pasien"
+                                        class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center text-xs transition">
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             `}
                         </div>
@@ -832,6 +844,71 @@
                         icon: 'error',
                         title: 'Gagal',
                         text: err.message,
+                    });
+                }
+            }
+        });
+    }
+
+    function showCannotDeleteAlert(name, rm) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Tidak Dapat Dihapus Permanen',
+            html: `Pasien <strong>${escapeHtml(name)}</strong> (${escapeHtml(rm)}) sudah memiliki riwayat pemeriksaan atau kunjungan.<br><br><span class="text-xs text-slate-500">Gunakan tombol <strong>Nonaktifkan</strong> jika pasien sudah tidak aktif berobat.</span>`,
+            confirmButtonColor: '#04BBA6',
+        });
+    }
+
+    function deletePatientPermanent(id, name, rm) {
+        Swal.fire({
+            title: 'Hapus Permanen Data Pasien?',
+            html: `Data pasien <strong>${escapeHtml(name)}</strong> (${escapeHtml(rm)}) akan <strong>dihapus secara permanen</strong> dari sistem dan tidak dapat dipulihkan kembali.<br><br><span class="text-xs text-rose-600 font-medium">*Hanya berlaku bagi pasien yang belum pernah menjalani pemeriksaan.</span>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hapus Permanen',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const csrfInput = document.querySelector('#form-patient input[name="<?= csrf_token() ?>"]');
+                    const formData = new FormData();
+                    if (csrfInput) {
+                        formData.append(csrfInput.name, csrfInput.value);
+                    }
+
+                    const res = await fetch(`<?= base_url('patients/permanent-delete') ?>/${id}`, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData,
+                    });
+                    const resJson = await res.json();
+
+                    // Perbarui token CSRF jika tersedia dari respons server
+                    if (resJson.csrf && csrfInput) {
+                        csrfInput.value = resJson.csrf.hash;
+                    }
+
+                    if (!resJson.status) {
+                        throw new Error(resJson.message || 'Gagal menghapus data pasien.');
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Terhapus Permanen',
+                        text: resJson.message,
+                        timer: 1800,
+                        showConfirmButton: false,
+                    });
+
+                    loadPatients(currentPatientsPage);
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Penghapusan Ditolak',
+                        text: err.message,
+                        confirmButtonColor: '#04BBA6',
                     });
                 }
             }

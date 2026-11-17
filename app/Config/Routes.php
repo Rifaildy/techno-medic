@@ -25,6 +25,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         $routes->post('update/(:num)', 'PatientController::update/$1');
         $routes->post('delete/(:num)', 'PatientController::delete/$1');
         $routes->post('restore/(:num)', 'PatientController::restore/$1');
+        $routes->post('permanent-delete/(:num)', 'PatientController::permanentDelete/$1');
     });
 
     // Modul Pendaftaran Pasien Rawat Jalan

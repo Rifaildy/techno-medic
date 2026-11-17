@@ -425,6 +425,62 @@ class PatientController extends BaseController
     }
 
     /**
+     * Menghapus data pasien secara permanen (Hard Delete).
+     * Validasi ketat: Hanya diizinkan jika pasien belum memiliki riwayat
+     * pemeriksaan atau kunjungan sama sekali.
+     */
+    public function permanentDelete(int $id): ResponseInterface
+    {
+        try {
+            // Cek pasien termasuk yang berstatus nonaktif (soft-deleted)
+            $patient = $this->patientModel->withDeleted()->find($id);
+
+            if (! $patient) {
+                return $this->jsonResponse([
+                    'status'  => false,
+                    'message' => 'Data pasien tidak ditemukan.',
+                ], 404);
+            }
+
+            // Validasi: Pastikan pasien belum menjalani pemeriksaan sama sekali
+            if ($this->patientModel->hasExaminationHistory($id)) {
+                return $this->jsonResponse([
+                    'status'  => false,
+                    'message' => "Pasien {$patient['name']} ({$patient['no_rm']}) tidak dapat dihapus karena sudah memiliki riwayat pemeriksaan atau kunjungan. Gunakan fitur Nonaktifkan.",
+                ], 422);
+            }
+
+            $deleted = $this->patientModel->permanentDeletePatient($id);
+
+            if (! $deleted) {
+                return $this->jsonResponse([
+                    'status'  => false,
+                    'message' => 'Gagal menghapus data pasien secara permanen.',
+                ], 500);
+            }
+
+            return $this->jsonResponse([
+                'status'  => true,
+                'message' => "Data pasien {$patient['name']} ({$patient['no_rm']}) berhasil dihapus secara permanen.",
+            ]);
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            log_message('warning', '[PatientController::permanentDelete] FK Constraint: ' . $e->getMessage());
+
+            return $this->jsonResponse([
+                'status'  => false,
+                'message' => 'Data pasien tidak dapat dihapus karena masih terhubung dengan transaksi/pemeriksaan lain di sistem.',
+            ], 422);
+        } catch (Throwable $e) {
+            log_message('error', '[PatientController::permanentDelete] ' . $e->getMessage());
+
+            return $this->jsonResponse([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan sistem saat menghapus data pasien.',
+            ], 500);
+        }
+    }
+
+    /**
      * Helper respons JSON standar dengan pembaruan token CSRF otomatis.
      */
     private function jsonResponse(array $payload, int $statusCode = 200): ResponseInterface

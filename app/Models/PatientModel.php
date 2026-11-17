@@ -11,6 +11,7 @@ use CodeIgniter\Model;
  * - Pembuatan Nomor Rekam Medis (No. RM) unik secara berurutan (RM-XXXXXX)
  * - Pencarian berdasarkan No. RM, NIK, atau Nama Pasien
  * - Paginasi dinamis (10/20/30/40/50) serta dukungan soft delete (aktif/nonaktif)
+ * - Validasi riwayat pemeriksaan sebelum penghapusan permanen
  */
 class PatientModel extends Model
 {
@@ -123,6 +124,12 @@ class PatientModel extends Model
         $items = $this->paginate($perPage, 'default', $page);
         $pager = $this->pager;
 
+        // Tandai apakah masing-masing pasien sudah pernah menjalani pemeriksaan
+        foreach ($items as &$item) {
+            $item['has_examination'] = $this->hasExaminationHistory((int) $item['id']);
+        }
+        unset($item);
+
         $total       = $pager->getTotal('default');
         $currentPage = $pager->getCurrentPage('default');
         $pageCount   = $pager->getPageCount('default');
@@ -141,6 +148,49 @@ class PatientModel extends Model
                 'to'           => $to,
             ],
         ];
+    }
+
+    /**
+     * Memeriksa apakah pasien sudah pernah menjalani pemeriksaan / kunjungan.
+     * Mengembalikan true jika ditemukan minimal 1 riwayat pemeriksaan/kunjungan.
+     */
+    public function hasExaminationHistory(int $patientId): bool
+    {
+        $db = $this->db;
+
+        // Daftar tabel relasi pemeriksaan / rekam medis / kunjungan rawat jalan.
+        // Sesuaikan jika nama tabel di database Anda berbeda.
+        $relatedTables = [
+            'examinations',
+            'medical_records',
+            'visits',
+            'registrations',
+        ];
+
+        foreach ($relatedTables as $table) {
+            if ($db->tableExists($table) && $db->fieldExists('patient_id', $table)) {
+                $exists = $db->table($table)
+                    ->select('1', false)
+                    ->where('patient_id', $patientId)
+                    ->limit(1)
+                    ->get()
+                    ->getRow();
+
+                if ($exists !== null) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Menghapus data pasien secara permanen dari database (purge = true).
+     */
+    public function permanentDeletePatient(int $patientId): bool
+    {
+        return (bool) $this->delete($patientId, true);
     }
 
     /**
